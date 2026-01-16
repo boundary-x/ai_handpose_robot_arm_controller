@@ -36,12 +36,12 @@
                 <li><b>좌우(Base):</b> 손을 화면 좌우로 이동</li>
                 <li><b>거리(Shoulder):</b> 손을 카메라 앞뒤로 (원근)</li>
                 <li><b>상하(Elbow):</b> 손을 위아래로 이동 (높이)</li>
-                <li><b>집게(Gripper):</b> 엄지-검지 꼬집기</li>
+                <li><b>집게(Gripper):</b> 엄지-검지 꼬집기 👌</li>
             </ul>
           </li>
           <li class="trim-guide">
-            <strong>🔧 오차 보정(Trim)이란?</strong>
-            <p>로봇팔이 한쪽으로 치우쳐 있다면, 아래 <b>슬라이더</b>를 움직여 수평(0점)을 맞춰주세요.</p>
+            <strong>🎛 설정 팁</strong>
+            <p>로봇팔이 반대로 움직이면 <b>[반전]</b>을 체크하세요.<br>각도 범위(숫자)를 조절해 안전하게 제한할 수 있습니다.</p>
           </li>
         </ul>
       </div>
@@ -76,15 +76,49 @@
         </div>
       </div>
       
-      <div class="panel trim-panel">
-        <h3>🔧 오차 보정 (Trim)</h3>
-        <div class="slider-group">
-            <label>Base (중심축) 보정</label>
-            <input type="range" id="trim-base" min="-30" max="30" value="0">
+      <div class="panel mapping-panel">
+        <h3>🎛 동작 범위 & 방향 설정</h3>
+        
+        <div class="control-group">
+            <div class="label-row">
+                <label>Base (좌우)</label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="rev-base" checked> 반전
+                </label>
+            </div>
+            <div class="input-row">
+                <input type="number" id="min-base" value="0" min="0" max="180">
+                <span>~</span>
+                <input type="number" id="max-base" value="180" min="0" max="180">
+            </div>
         </div>
-        <div class="slider-group">
-            <label>Shoulder (거리) 보정</label>
-            <input type="range" id="trim-shoulder" min="-30" max="30" value="0">
+
+        <div class="control-group">
+            <div class="label-row">
+                <label>Shoulder (거리)</label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="rev-shoulder" checked> 반전
+                </label>
+            </div>
+            <div class="input-row">
+                <input type="number" id="min-shoulder" value="20" min="0" max="180">
+                <span>~</span>
+                <input type="number" id="max-shoulder" value="160" min="0" max="180">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="label-row">
+                <label>Elbow (상하)</label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="rev-elbow" checked> 반전
+                </label>
+            </div>
+            <div class="input-row">
+                <input type="number" id="min-elbow" value="20" min="0" max="180">
+                <span>~</span>
+                <input type="number" id="max-elbow" value="160" min="0" max="180">
+            </div>
         </div>
       </div>
 
@@ -102,7 +136,7 @@
             <div class="guide-text top-left">↕ Height: Elbow</div>
             <div class="guide-text bottom-left">✋ Dist: Shoulder</div>
             <div class="guide-text bottom-right">↔ Rotate: Base</div>
-            <div class="guide-text center">👌 Pinch: Grab</div>
+            <div class="guide-text center">✊ Pinch: Grab</div>
             <div class="center-crosshair"></div>
         </div>
 
@@ -112,5 +146,3 @@
   </div>
 </body>
 </html>
-
-
