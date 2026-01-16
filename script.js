@@ -4,26 +4,12 @@ import {
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 
 // --- [설정] 하드웨어 및 통신 설정 ---
-
 const UUID_SERVICE = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const UUID_RX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; 
 
-// 서보모터 각도 제한
-const LIMITS = {
-    base: { min: 0, max: 180 },
-    shoulder: { min: 20, max: 160 }, 
-    elbow: { min: 20, max: 160 }     
-};
-
-// [수정 1] 더 부드럽게 설정 (0.15 -> 0.08)
-// 숫자가 작을수록 느리지만 훨씬 부드러워집니다.
-const SMOOTHING = 0.1; 
-
-// [수정 2] 이동 평균 필터 크기 (최근 N개의 평균을 사용)
-// 5 정도가 적당하며, 높을수록 부드럽지만 반응이 느려집니다.
-const FILTER_SIZE = 3; 
-
-// 득득거림 방지 (Deadband) - 1.5도로 약간 완화
+// 스무딩 & 필터 설정
+const SMOOTHING = 0.08; 
+const FILTER_SIZE = 5; 
 const MIN_CHANGE = 1.5; 
 
 // --- [변수] ---
@@ -37,17 +23,10 @@ let bluetoothDevice, rxCharacteristic;
 let isConnected = false;
 let isSendingData = false;
 
-// 목표/현재/마지막 전송 각도
 let targetAngles = { b: 90, s: 90, e: 90, g: 0 };
 let currentAngles = { b: 90, s: 90, e: 90 }; 
 let lastSentAngles = { b: -999, s: -999, e: -999, g: -1 };
-
-// [추가] 이동 평균을 위한 데이터 저장소 (큐)
-let angleQueue = {
-    b: [],
-    s: [],
-    e: []
-};
+let angleQueue = { b: [], s: [], e: [] };
 
 // DOM 요소
 const modelStatus = document.getElementById("model-status");
@@ -58,20 +37,20 @@ const disconnectBtn = document.getElementById("disconnect-btn");
 
 const uiBars = { b: document.getElementById("bar-base"), s: document.getElementById("bar-shoulder"), e: document.getElementById("bar-elbow") };
 const uiVals = { b: document.getElementById("val-base"), s: document.getElementById("val-shoulder"), e: document.getElementById("val-elbow"), g: document.getElementById("val-gripper") };
-const trims = { b: document.getElementById("trim-base"), s: document.getElementById("trim-shoulder") };
+
+// [NEW] 매핑 설정 DOM 요소 가져오기
+const configUI = {
+    b: { min: document.getElementById("min-base"), max: document.getElementById("max-base"), rev: document.getElementById("rev-base") },
+    s: { min: document.getElementById("min-shoulder"), max: document.getElementById("max-shoulder"), rev: document.getElementById("rev-shoulder") },
+    e: { min: document.getElementById("min-elbow"), max: document.getElementById("max-elbow"), rev: document.getElementById("rev-elbow") }
+};
 
 // --- [1] AI 초기화 ---
 async function createHandLandmarker() {
-  const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-  );
+  const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
   handLandmarker = await HandLandmarker.createFromOptions(vision, {
-    baseOptions: {
-      modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
-      delegate: "GPU"
-    },
-    runningMode: "VIDEO",
-    numHands: 1 
+    baseOptions: { modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`, delegate: "GPU" },
+    runningMode: "VIDEO", numHands: 1 
   });
   modelStatus.innerText = "AI 모델 준비 완료";
   modelStatus.classList.add("ready");
@@ -103,59 +82,67 @@ async function predictWebcam() {
     calculateRobotAngles(landmarks); 
     drawSkeleton(landmarks);         
   } else {
-    // 손이 없으면 원점 복귀 (큐 초기화 포함)
+    // 손 없으면 원점 복귀
     targetAngles.b = 90; targetAngles.s = 90; targetAngles.e = 90; targetAngles.g = 0;
-    // 큐 초기화 (갑자기 튀는 것 방지)
     angleQueue = { b: [], s: [], e: [] };
   }
 
-  smoothMove(); 
-  updateUI();   
-  sendPacket(); 
-
+  smoothMove(); updateUI(); sendPacket(); 
   window.requestAnimationFrame(predictWebcam);
 }
 
-// --- [4] 각도 계산 (이동 평균 적용) ---
+// --- [4] 각도 계산 (UI 설정값 적용) ---
 function calculateRobotAngles(lm) {
-    // 1. Raw 값 계산
-    let x = 1 - lm[0].x; 
-    let baseRaw = map(x, 0, 1, LIMITS.base.max, LIMITS.base.min);
+    // UI에서 현재 설정값 읽어오기
+    // 체크박스가 켜져 있으면(Reverse), Min과 Max를 서로 바꿔서 매핑함
     
+    // 1. Base (좌우) : 입력 x (0~1)
+    let bMin = parseInt(configUI.b.min.value) || 0;
+    let bMax = parseInt(configUI.b.max.value) || 180;
+    // 반전 체크 시: 입력0 -> Max, 입력1 -> Min
+    let bOutMin = configUI.b.rev.checked ? bMax : bMin;
+    let bOutMax = configUI.b.rev.checked ? bMin : bMax;
+    
+    let x = 1 - lm[0].x; 
+    let baseRaw = map(x, 0, 1, bOutMin, bOutMax);
+
+    // 2. Shoulder (거리) : 입력 size (0.05~0.25)
+    let sMin = parseInt(configUI.s.min.value) || 20;
+    let sMax = parseInt(configUI.s.max.value) || 160;
+    let sOutMin = configUI.s.rev.checked ? sMax : sMin;
+    let sOutMax = configUI.s.rev.checked ? sMin : sMax;
+
     let size = getDistance(lm[0], lm[9]);
-    let shoulderRaw = map(size, 0.05, 0.25, LIMITS.shoulder.min, LIMITS.shoulder.max);
+    let shoulderRaw = map(size, 0.05, 0.25, sOutMin, sOutMax);
+
+    // 3. Elbow (상하) : 입력 y (0~1)
+    let eMin = parseInt(configUI.e.min.value) || 20;
+    let eMax = parseInt(configUI.e.max.value) || 160;
+    let eOutMin = configUI.e.rev.checked ? eMax : eMin;
+    let eOutMax = configUI.e.rev.checked ? eMin : eMax;
 
     let y = lm[0].y;
-    let elbowRaw = map(y, 0, 1, LIMITS.elbow.max, LIMITS.elbow.min);
+    let elbowRaw = map(y, 0, 1, eOutMin, eOutMax);
 
-    // 2. [핵심] 이동 평균 필터 적용 (노이즈 제거)
+    // 4. 이동 평균 및 Gripper
     let baseAvg = getMovingAverage(angleQueue.b, baseRaw);
     let shoulderAvg = getMovingAverage(angleQueue.s, shoulderRaw);
     let elbowAvg = getMovingAverage(angleQueue.e, elbowRaw);
 
-    // 3. Gripper & Trim
     let pinchDist = getDistance(lm[4], lm[8]);
     let gripState = (pinchDist < 0.05) ? 0 : 1; 
 
-    let trimB = parseInt(trims.b.value) || 0;
-    let trimS = parseInt(trims.s.value) || 0;
-
-    // 4. 최종 목표값 설정 (평균값 사용)
-    targetAngles.b = constrain(baseAvg + trimB, 0, 180);
-    targetAngles.s = constrain(shoulderAvg + trimS, 0, 180);
+    // 최종 목표값
+    targetAngles.b = constrain(baseAvg, 0, 180);
+    targetAngles.s = constrain(shoulderAvg, 0, 180);
     targetAngles.e = constrain(elbowAvg, 0, 180);
     targetAngles.g = gripState;
 }
 
-// [추가] 이동 평균 계산 함수
 function getMovingAverage(queue, newValue) {
-    queue.push(newValue); // 새 값 추가
-    if (queue.length > FILTER_SIZE) {
-        queue.shift(); // 가장 오래된 값 제거
-    }
-    // 평균 계산
-    let sum = queue.reduce((a, b) => a + b, 0);
-    return sum / queue.length;
+    queue.push(newValue); 
+    if (queue.length > FILTER_SIZE) queue.shift();
+    return queue.reduce((a, b) => a + b, 0) / queue.length;
 }
 
 // --- [5] 유틸리티 ---
@@ -226,4 +213,3 @@ function onDisc() { isConnected = false; statusBt.innerText = "연결 해제됨"
 disconnectBtn.addEventListener('click', () => { if(bluetoothDevice && bluetoothDevice.gatt.connected) { bluetoothDevice.gatt.disconnect(); } });
 
 createHandLandmarker();
-
