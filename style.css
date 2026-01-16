@@ -1,6 +1,6 @@
 :root {
   --primary: #000000;
-  --accent: #00E676; 
+  --accent: #00E676; /* 바운더리엑스 그린 */
   --danger: #FF1744;
   --bg-color: #F0F2F5;
   --sidebar-width: 320px;
@@ -9,6 +9,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family); }
 
+/* 태블릿/모바일 주소창 대응 (dvh) */
 body { 
     height: 100dvh; 
     display: flex; 
@@ -17,7 +18,7 @@ body {
     overflow: hidden; 
 }
 
-/* 헤더 */
+/* --- 헤더 --- */
 header { 
     background: #000; 
     color: #fff; 
@@ -35,7 +36,7 @@ header {
 .status-indicator { font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; background: #333; color: #ccc; }
 .status-indicator.ready { background: var(--accent); color: #000; font-weight: 700; }
 
-/* 앱 메인 컨테이너 */
+/* --- 앱 레이아웃 --- */
 .app-container { 
     display: flex; 
     flex: 1; 
@@ -60,20 +61,15 @@ header {
 
 .panel h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.8rem; color: #333; border-bottom: 2px solid #eee; padding-bottom: 5px; }
 
-/* [추가] 사용 가이드 스타일 */
+/* 사용 가이드 패널 */
 .info-panel { background: #F0F4F8; padding: 1.2rem; border-radius: 12px; border: 1px solid #E1E8ED; }
 .manual-list { padding-left: 1.2rem; font-size: 0.9rem; color: #444; line-height: 1.5; }
 .manual-list > li { margin-bottom: 12px; }
-
-/* [추가] 서브 리스트 (제어 방법) */
 .sub-list { padding-left: 10px; margin-top: 5px; list-style: none; border-left: 2px solid #ddd; }
 .sub-list li { font-size: 0.85rem; margin-bottom: 3px; color: #555; }
 .sub-list b { color: #000; }
-
-/* [추가] Trim 설명 강조 */
 .trim-guide p { margin-top: 5px; font-size: 0.85rem; color: #666; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #eee; }
 .trim-guide b { color: var(--accent); }
-
 
 /* 버튼 스타일 */
 .btn-primary { width: 100%; padding: 14px; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
@@ -91,12 +87,80 @@ header {
 .badge-open { color: var(--accent); }
 .badge-close { color: #888; } 
 
-/* Trim(오차 보정) 패널 */
-.trim-panel { background: #FAFAFA; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-.slider-group { margin-bottom: 12px; }
-.slider-group label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 6px; font-weight: 600; }
-input[type=range] { width: 100%; cursor: pointer; accent-color: var(--accent); }
+/* [수정됨] 동작 범위(Mapping) 설정 패널 */
+.mapping-panel { 
+    background: #fff; 
+    border: 1px solid #e0e0e0; 
+    padding: 15px; 
+    border-radius: 8px; 
+    background-color: #FAFAFA;
+}
 
+.control-group { 
+    margin-bottom: 12px; 
+    border-bottom: 1px dashed #ddd; 
+    padding-bottom: 12px; 
+}
+.control-group:last-child { 
+    border-bottom: none; 
+    margin-bottom: 0; 
+    padding-bottom: 0; 
+}
+
+.label-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 8px; 
+}
+.label-row label { 
+    font-size: 0.9rem; 
+    font-weight: 700; 
+    color: #333; 
+}
+
+.checkbox-label { 
+    font-size: 0.8rem !important; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    cursor: pointer; 
+    color: #666 !important; 
+    background: #eee;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+.checkbox-label input { 
+    cursor: pointer; 
+    accent-color: var(--danger); /* 체크 시 빨간색 강조 */
+}
+
+.input-row { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+.input-row input { 
+    width: 100%; 
+    padding: 8px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    text-align: center; 
+    font-family: monospace; 
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: #fff;
+}
+.input-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+.input-row span { 
+    color: #999; 
+    font-weight: bold; 
+}
+
+/* 디버그 패널 */
 .debug-panel { margin-top: auto; font-size: 0.75rem; color: #999; }
 .debug-panel code { display: block; background: #222; color: #0f0; padding: 10px; border-radius: 4px; margin-top: 5px; font-family: monospace; text-align: center; }
 
@@ -131,7 +195,7 @@ canvas {
     z-index: 1; 
 }
 
-/* 오버레이 가이드 컨테이너 */
+/* 오버레이 가이드 */
 .overlay-guide-container { 
     position: absolute; 
     top: 0; 
@@ -154,6 +218,7 @@ canvas {
     letter-spacing: 0.5px; 
 }
 
+/* 위치 지정 클래스 */
 .top-left { top: 30px; left: 30px; }
 .bottom-right { bottom: 30px; right: 30px; }
 .bottom-left { bottom: 30px; left: 30px; }
