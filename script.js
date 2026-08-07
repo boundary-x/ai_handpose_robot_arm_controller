@@ -43,7 +43,13 @@ async function createHandLandmarker() {
     runningMode: "VIDEO", numHands: 1 
   });
   modelStatus.innerText = "AI 모델 준비 완료";
+  modelStatus.classList.remove("loading");
   modelStatus.classList.add("ready");
+
+  // 모델 로딩 완료 후 연결 버튼 활성화
+  connectBtn.disabled = false;
+  connectBtn.innerText = "기기 찾기";
+
   startWebcam();
 }
 
@@ -247,6 +253,10 @@ disconnectBtn.addEventListener("click", () => {
     bluetoothDevice.gatt.disconnect();
   }
 });
+
+// 모델 로딩 완료 전까지 연결 버튼 비활성화 — 로딩 중 클릭 시 팝업 지연 방지
+connectBtn.disabled = true;
+connectBtn.innerText = "AI 로딩 중...";
 
 // AI 초기화 시작
 createHandLandmarker();
