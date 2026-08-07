@@ -10,8 +10,6 @@
   
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <link rel="stylesheet" type="text/css" href="style.css">
-
-  <script src="script.js"></script>
 </head>
 
 <body>
@@ -144,5 +142,9 @@
       </div>
     </main>
   </div>
+
+  <!-- script.js를 <body> 끝에 배치 → DOM이 이미 준비된 상태에서 실행 -->
+  <!-- window.onload 래퍼 없이도 null 에러 없음, 블루투스 클릭이 순수 사용자 제스처로 인정됨 -->
+  <script src="script.js"></script>
 </body>
 </html>
