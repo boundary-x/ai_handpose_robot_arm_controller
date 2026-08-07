@@ -27,9 +27,21 @@ let currentAngles = { b: 90, s: 90, e: 90 };
 let lastSentAngles = { b: -999, s: -999, e: -999, g: -1 };
 let angleQueue = { b: [], s: [], e: [] };
 
-// DOM 참조 변수 (window.onload에서 초기화)
-let modelStatus, statusBt, packetLog, connectBtn, disconnectBtn;
-let uiBars, uiVals, configUI;
+// DOM 참조 변수 (script가 <body> 끝에 위치하므로 DOM이 이미 준비된 상태)
+const modelStatus  = document.getElementById("model-status");
+const statusBt     = document.getElementById("bt-status");
+const packetLog    = document.getElementById("packet-log");
+const connectBtn   = document.getElementById("connect-btn");
+const disconnectBtn = document.getElementById("disconnect-btn");
+
+const uiBars = { b: document.getElementById("bar-base"), s: document.getElementById("bar-shoulder"), e: document.getElementById("bar-elbow") };
+const uiVals = { b: document.getElementById("val-base"), s: document.getElementById("val-shoulder"), e: document.getElementById("val-elbow"), g: document.getElementById("val-gripper") };
+
+const configUI = {
+    b: { min: document.getElementById("min-base"), max: document.getElementById("max-base"), rev: document.getElementById("rev-base") },
+    s: { min: document.getElementById("min-shoulder"), max: document.getElementById("max-shoulder"), rev: document.getElementById("rev-shoulder") },
+    e: { min: document.getElementById("min-elbow"), max: document.getElementById("max-elbow"), rev: document.getElementById("rev-elbow") }
+};
 
 // --- [1] AI 초기화 ---
 async function createHandLandmarker() {
@@ -43,7 +55,6 @@ async function createHandLandmarker() {
     runningMode: "VIDEO", numHands: 1 
   });
   modelStatus.innerText = "AI 모델 준비 완료";
-  modelStatus.classList.remove("loading");
   modelStatus.classList.add("ready");
 
   // 모델 로딩 완료 후 연결 버튼 활성화
@@ -67,18 +78,47 @@ function startWebcam() {
 
 // --- [3] 메인 루프 ---
 async function predictWebcam() {
-  if (canvas.width !== webcam.videoWidth) { canvas.width = webcam.videoWidth; canvas.height = webcam.videoHeight; }
-  let startTimeMs = performance.now();
-  if (lastVideoTime !== webcam.currentTime) { lastVideoTime = webcam.currentTime; results = handLandmarker.detectForVideo(webcam, startTimeMs); }
+  // canvas 내부 해상도를 CSS 표시 크기(devicePixelRatio 포함)에 맞게 동적 설정
+  // → CSS width:100%/height:100%로 늘어날 때 비율이 깨지는 문제 해결
+  const displayWidth  = canvas.clientWidth;
+  const displayHeight = canvas.clientHeight;
+  if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+  }
 
-  ctx.save(); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.translate(canvas.width, 0); ctx.scale(-1, 1); ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height); ctx.restore();
+  let startTimeMs = performance.now();
+  if (lastVideoTime !== webcam.currentTime) {
+    lastVideoTime = webcam.currentTime;
+    results = handLandmarker.detectForVideo(webcam, startTimeMs);
+  }
+
+  // 웹캠 영상을 canvas 크기에 맞게 letterbox(contain) 방식으로 그리기
+  // CSS object-fit:contain이 canvas에 안 먹히므로 JS에서 직접 처리
+  const vw = webcam.videoWidth;
+  const vh = webcam.videoHeight;
+  const cw = canvas.width;
+  const ch = canvas.height;
+
+  const scale = Math.min(cw / vw, ch / vh);
+  const drawW = vw * scale;
+  const drawH = vh * scale;
+  const offsetX = (cw - drawW) / 2;
+  const offsetY = (ch - drawH) / 2;
+
+  ctx.save();
+  ctx.clearRect(0, 0, cw, ch);
+  // 좌우 반전 (거울 모드)
+  ctx.translate(cw, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(webcam, cw - offsetX - drawW, offsetY, drawW, drawH);
+  ctx.restore();
 
   if (results.landmarks && results.landmarks.length > 0) {
     const landmarks = results.landmarks[0];
-    calculateRobotAngles(landmarks); 
-    drawSkeleton(landmarks);         
+    calculateRobotAngles(landmarks);
+    drawSkeleton(landmarks, offsetX, offsetY, drawW, drawH);
   } else {
-    // 손 없으면 원점 복귀
     targetAngles.b = 90; targetAngles.s = 90; targetAngles.e = 90; targetAngles.g = 0;
     angleQueue = { b: [], s: [], e: [] };
   }
@@ -89,38 +129,27 @@ async function predictWebcam() {
 
 // --- [4] 각도 계산 (UI 설정값 적용) ---
 function calculateRobotAngles(lm) {
-    // UI에서 현재 설정값 읽어오기
-    // 체크박스가 켜져 있으면(Reverse), Min과 Max를 서로 바꿔서 매핑함
-    
-    // 1. Base (좌우) : 입력 x (0~1)
     let bMin = parseInt(configUI.b.min.value) || 0;
     let bMax = parseInt(configUI.b.max.value) || 180;
-    // 반전 체크 시: 입력0 -> Max, 입력1 -> Min
     let bOutMin = configUI.b.rev.checked ? bMax : bMin;
     let bOutMax = configUI.b.rev.checked ? bMin : bMax;
-    
     let x = 1 - lm[0].x; 
     let baseRaw = map(x, 0, 1, bOutMin, bOutMax);
 
-    // 2. Shoulder (거리) : 입력 size (0.05~0.25)
     let sMin = parseInt(configUI.s.min.value) || 20;
     let sMax = parseInt(configUI.s.max.value) || 160;
     let sOutMin = configUI.s.rev.checked ? sMax : sMin;
     let sOutMax = configUI.s.rev.checked ? sMin : sMax;
-
     let size = getDistance(lm[0], lm[9]);
     let shoulderRaw = map(size, 0.05, 0.25, sOutMin, sOutMax);
 
-    // 3. Elbow (상하) : 입력 y (0~1)
     let eMin = parseInt(configUI.e.min.value) || 20;
     let eMax = parseInt(configUI.e.max.value) || 160;
     let eOutMin = configUI.e.rev.checked ? eMax : eMin;
     let eOutMax = configUI.e.rev.checked ? eMin : eMax;
-
     let y = lm[0].y;
     let elbowRaw = map(y, 0, 1, eOutMin, eOutMax);
 
-    // 4. 이동 평균 및 Gripper
     let baseAvg = getMovingAverage(angleQueue.b, baseRaw);
     let shoulderAvg = getMovingAverage(angleQueue.s, shoulderRaw);
     let elbowAvg = getMovingAverage(angleQueue.e, elbowRaw);
@@ -128,7 +157,6 @@ function calculateRobotAngles(lm) {
     let pinchDist = getDistance(lm[4], lm[8]);
     let gripState = (pinchDist < 0.05) ? 0 : 1; 
 
-    // 최종 목표값
     targetAngles.b = constrain(baseAvg, 0, 180);
     targetAngles.s = constrain(shoulderAvg, 0, 180);
     targetAngles.e = constrain(elbowAvg, 0, 180);
@@ -151,20 +179,39 @@ function getDistance(p1, p2) { return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.
 function map(value, inMin, inMax, outMin, outMax) { return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin; }
 function constrain(val, min, max) { return Math.min(Math.max(val, min), max); }
 
-function drawSkeleton(lm) {
-    const w = canvas.width; const h = canvas.height;
+// offsetX/Y, drawW/H: letterbox 영역 좌표를 skeleton에도 반영
+function drawSkeleton(lm, offsetX, offsetY, drawW, drawH) {
+    const cw = canvas.width;
+
+    // 랜드마크 좌표를 letterbox 영역 안으로 변환 + 좌우 반전
+    function lmX(lmPoint) {
+        return cw - (lmPoint.x * drawW + offsetX);
+    }
+    function lmY(lmPoint) {
+        return lmPoint.y * drawH + offsetY;
+    }
+
     ctx.fillStyle = "#00E676"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-    [0, 4, 8, 9].forEach(i => { ctx.beginPath(); ctx.arc((1-lm[i].x)*w, lm[i].y*h, 6, 0, 2*Math.PI); ctx.fill(); ctx.stroke(); });
-    let tX = (1-lm[4].x)*w; let tY = lm[4].y*h; let iX = (1-lm[8].x)*w; let iY = lm[8].y*h;
-    ctx.beginPath(); ctx.moveTo(tX, tY); ctx.lineTo(iX, iY);
-    ctx.strokeStyle = targetAngles.g === 0 ? "#FF1744" : "#00E676"; ctx.lineWidth = 4; ctx.stroke();
+    [0, 4, 8, 9].forEach(i => {
+        ctx.beginPath();
+        ctx.arc(lmX(lm[i]), lmY(lm[i]), 6, 0, 2 * Math.PI);
+        ctx.fill(); ctx.stroke();
+    });
+
+    ctx.beginPath();
+    ctx.moveTo(lmX(lm[4]), lmY(lm[4]));
+    ctx.lineTo(lmX(lm[8]), lmY(lm[8]));
+    ctx.strokeStyle = targetAngles.g === 0 ? "#FF1744" : "#00E676";
+    ctx.lineWidth = 4;
+    ctx.stroke();
 }
 
 function updateUI() {
     let b = Math.round(currentAngles.b); let s = Math.round(currentAngles.s); let e = Math.round(currentAngles.e);
     uiVals.b.innerText = `${b}°`; uiVals.s.innerText = `${s}°`; uiVals.e.innerText = `${e}°`;
     uiBars.b.style.width = `${(b/180)*100}%`; uiBars.s.style.width = `${(s/180)*100}%`; uiBars.e.style.width = `${(e/180)*100}%`;
-    uiVals.g.innerText = targetAngles.g === 0 ? "CLOSE" : "OPEN"; uiVals.g.style.color = targetAngles.g === 0 ? "#FF1744" : "#00E676";
+    uiVals.g.innerText = targetAngles.g === 0 ? "CLOSE" : "OPEN";
+    uiVals.g.style.color = targetAngles.g === 0 ? "#FF1744" : "#00E676";
 }
 
 // --- [6] 통신 ---
@@ -195,68 +242,35 @@ async function sendPacket() {
 }
 
 function onDisc() {
-  isConnected = false;
-  statusBt.innerText = "연결 해제됨";
-  statusBt.classList.remove("status-connected");
-  connectBtn.classList.remove("hidden");
-  disconnectBtn.classList.add("hidden");
+    isConnected = false;
+    statusBt.innerText = "연결 해제됨";
+    statusBt.classList.remove("status-connected");
+    connectBtn.classList.remove("hidden");
+    disconnectBtn.classList.add("hidden");
 }
 
-// DOM 참조와 이벤트 등록은 index.html <body> 끝 inline script에서 처리
-// (window.onload 래퍼 제거 → 사용자 제스처 타이밍 정확히 맞아 블루투스 팝업 즉시 뜸)
-
-// script.js가 <body> 끝에 위치하므로 DOM이 이미 준비된 상태 — 직접 참조 가능
-modelStatus   = document.getElementById("model-status");
-statusBt      = document.getElementById("bt-status");
-packetLog     = document.getElementById("packet-log");
-connectBtn    = document.getElementById("connect-btn");
-disconnectBtn = document.getElementById("disconnect-btn");
-
-uiBars = {
-  b: document.getElementById("bar-base"),
-  s: document.getElementById("bar-shoulder"),
-  e: document.getElementById("bar-elbow")
-};
-uiVals = {
-  b: document.getElementById("val-base"),
-  s: document.getElementById("val-shoulder"),
-  e: document.getElementById("val-elbow"),
-  g: document.getElementById("val-gripper")
-};
-configUI = {
-  b: { min: document.getElementById("min-base"), max: document.getElementById("max-base"), rev: document.getElementById("rev-base") },
-  s: { min: document.getElementById("min-shoulder"), max: document.getElementById("max-shoulder"), rev: document.getElementById("rev-shoulder") },
-  e: { min: document.getElementById("min-elbow"), max: document.getElementById("max-elbow"), rev: document.getElementById("rev-elbow") }
-};
-
-// 블루투스 이벤트 직접 바인딩 — 래퍼 없는 addEventListener가 사용자 제스처로 정확히 인정됨
+// 블루투스 이벤트 직접 바인딩
 connectBtn.addEventListener("click", async () => {
-  try {
-    bluetoothDevice = await navigator.bluetooth.requestDevice({
-      filters: [{ namePrefix: "BBC micro:bit" }],
-      optionalServices: [UUID_SERVICE]
-    });
-    bluetoothDevice.addEventListener("gattserverdisconnected", onDisc);
-    const server  = await bluetoothDevice.gatt.connect();
-    const service = await server.getPrimaryService(UUID_SERVICE);
-    rxCharacteristic = await service.getCharacteristic(UUID_RX);
-    isConnected = true;
-    statusBt.innerText = "연결됨: " + bluetoothDevice.name;
-    statusBt.classList.add("status-connected");
-    connectBtn.classList.add("hidden");
-    disconnectBtn.classList.remove("hidden");
-  } catch (error) { alert("연결 실패: " + error); }
+    try {
+        bluetoothDevice = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: "BBC micro:bit" }], optionalServices: [UUID_SERVICE] });
+        bluetoothDevice.addEventListener("gattserverdisconnected", onDisc);
+        const server = await bluetoothDevice.gatt.connect();
+        const service = await server.getPrimaryService(UUID_SERVICE);
+        rxCharacteristic = await service.getCharacteristic(UUID_RX);
+        isConnected = true;
+        statusBt.innerText = "연결됨: " + bluetoothDevice.name;
+        statusBt.classList.add("status-connected");
+        connectBtn.classList.add("hidden");
+        disconnectBtn.classList.remove("hidden");
+    } catch (error) { alert("연결 실패: " + error); }
 });
 
 disconnectBtn.addEventListener("click", () => {
-  if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-    bluetoothDevice.gatt.disconnect();
-  }
+    if (bluetoothDevice && bluetoothDevice.gatt.connected) bluetoothDevice.gatt.disconnect();
 });
 
-// 모델 로딩 완료 전까지 연결 버튼 비활성화 — 로딩 중 클릭 시 팝업 지연 방지
+// 모델 로딩 완료 전까지 연결 버튼 비활성화
 connectBtn.disabled = true;
 connectBtn.innerText = "AI 로딩 중...";
 
-// AI 초기화 시작
 createHandLandmarker();
