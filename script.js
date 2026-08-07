@@ -1,4 +1,5 @@
 // HandLandmarker, FilesetResolver: 동적 import로 로드
+// (type="module" 없이 일반 스크립트로 실행 → 블루투스 팝업 즉시 뜸)
 let HandLandmarker, FilesetResolver;
 
 // --- [설정] 하드웨어 및 통신 설정 ---
@@ -26,22 +27,9 @@ let currentAngles = { b: 90, s: 90, e: 90 };
 let lastSentAngles = { b: -999, s: -999, e: -999, g: -1 };
 let angleQueue = { b: [], s: [], e: [] };
 
-// DOM 요소
-const modelStatus = document.getElementById("model-status");
-const statusBt = document.getElementById("bt-status");
-const packetLog = document.getElementById("packet-log");
-const connectBtn = document.getElementById("connect-btn");
-const disconnectBtn = document.getElementById("disconnect-btn");
-
-const uiBars = { b: document.getElementById("bar-base"), s: document.getElementById("bar-shoulder"), e: document.getElementById("bar-elbow") };
-const uiVals = { b: document.getElementById("val-base"), s: document.getElementById("val-shoulder"), e: document.getElementById("val-elbow"), g: document.getElementById("val-gripper") };
-
-// [NEW] 매핑 설정 DOM 요소 가져오기
-const configUI = {
-    b: { min: document.getElementById("min-base"), max: document.getElementById("max-base"), rev: document.getElementById("rev-base") },
-    s: { min: document.getElementById("min-shoulder"), max: document.getElementById("max-shoulder"), rev: document.getElementById("rev-shoulder") },
-    e: { min: document.getElementById("min-elbow"), max: document.getElementById("max-elbow"), rev: document.getElementById("rev-elbow") }
-};
+// DOM 참조 변수 (window.onload에서 초기화)
+let modelStatus, statusBt, packetLog, connectBtn, disconnectBtn;
+let uiBars, uiVals, configUI;
 
 // --- [1] AI 초기화 ---
 async function createHandLandmarker() {
@@ -200,18 +188,65 @@ async function sendPacket() {
     } catch (err) { } finally { isSendingData = false; }
 }
 
-connectBtn.addEventListener('click', async () => {
-  try {
-    bluetoothDevice = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: "BBC micro:bit" }], optionalServices: [UUID_SERVICE] });
-    bluetoothDevice.addEventListener('gattserverdisconnected', onDisc);
-    const server = await bluetoothDevice.gatt.connect();
-    const service = await server.getPrimaryService(UUID_SERVICE);
-    rxCharacteristic = await service.getCharacteristic(UUID_RX);
-    isConnected = true; statusBt.innerText = "연결됨: " + bluetoothDevice.name; statusBt.classList.add("status-connected");
-    connectBtn.classList.add("hidden"); disconnectBtn.classList.remove("hidden");
-  } catch (error) { alert("연결 실패: " + error); }
-});
-function onDisc() { isConnected = false; statusBt.innerText = "연결 해제됨"; statusBt.classList.remove("status-connected"); connectBtn.classList.remove("hidden"); disconnectBtn.classList.add("hidden"); }
-disconnectBtn.addEventListener('click', () => { if(bluetoothDevice && bluetoothDevice.gatt.connected) { bluetoothDevice.gatt.disconnect(); } });
+function onDisc() {
+  isConnected = false;
+  statusBt.innerText = "연결 해제됨";
+  statusBt.classList.remove("status-connected");
+  connectBtn.classList.remove("hidden");
+  disconnectBtn.classList.add("hidden");
+}
 
-createHandLandmarker();
+// DOM이 완전히 로드된 후 실행 — script가 <head>에 있어도 null 에러 없음
+window.addEventListener("load", function () {
+  // DOM 참조 초기화
+  modelStatus   = document.getElementById("model-status");
+  statusBt      = document.getElementById("bt-status");
+  packetLog     = document.getElementById("packet-log");
+  connectBtn    = document.getElementById("connect-btn");
+  disconnectBtn = document.getElementById("disconnect-btn");
+
+  uiBars = {
+    b: document.getElementById("bar-base"),
+    s: document.getElementById("bar-shoulder"),
+    e: document.getElementById("bar-elbow")
+  };
+  uiVals = {
+    b: document.getElementById("val-base"),
+    s: document.getElementById("val-shoulder"),
+    e: document.getElementById("val-elbow"),
+    g: document.getElementById("val-gripper")
+  };
+  configUI = {
+    b: { min: document.getElementById("min-base"), max: document.getElementById("max-base"), rev: document.getElementById("rev-base") },
+    s: { min: document.getElementById("min-shoulder"), max: document.getElementById("max-shoulder"), rev: document.getElementById("rev-shoulder") },
+    e: { min: document.getElementById("min-elbow"), max: document.getElementById("max-elbow"), rev: document.getElementById("rev-elbow") }
+  };
+
+  // 블루투스 이벤트 등록
+  connectBtn.addEventListener("click", async () => {
+    try {
+      bluetoothDevice = await navigator.bluetooth.requestDevice({
+        filters: [{ namePrefix: "BBC micro:bit" }],
+        optionalServices: [UUID_SERVICE]
+      });
+      bluetoothDevice.addEventListener("gattserverdisconnected", onDisc);
+      const server  = await bluetoothDevice.gatt.connect();
+      const service = await server.getPrimaryService(UUID_SERVICE);
+      rxCharacteristic = await service.getCharacteristic(UUID_RX);
+      isConnected = true;
+      statusBt.innerText = "연결됨: " + bluetoothDevice.name;
+      statusBt.classList.add("status-connected");
+      connectBtn.classList.add("hidden");
+      disconnectBtn.classList.remove("hidden");
+    } catch (error) { alert("연결 실패: " + error); }
+  });
+
+  disconnectBtn.addEventListener("click", () => {
+    if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+      bluetoothDevice.gatt.disconnect();
+    }
+  });
+
+  // AI 초기화 시작
+  createHandLandmarker();
+});
