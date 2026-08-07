@@ -196,57 +196,57 @@ function onDisc() {
   disconnectBtn.classList.add("hidden");
 }
 
-// DOM이 완전히 로드된 후 실행 — script가 <head>에 있어도 null 에러 없음
-window.addEventListener("load", function () {
-  // DOM 참조 초기화
-  modelStatus   = document.getElementById("model-status");
-  statusBt      = document.getElementById("bt-status");
-  packetLog     = document.getElementById("packet-log");
-  connectBtn    = document.getElementById("connect-btn");
-  disconnectBtn = document.getElementById("disconnect-btn");
+// DOM 참조와 이벤트 등록은 index.html <body> 끝 inline script에서 처리
+// (window.onload 래퍼 제거 → 사용자 제스처 타이밍 정확히 맞아 블루투스 팝업 즉시 뜸)
 
-  uiBars = {
-    b: document.getElementById("bar-base"),
-    s: document.getElementById("bar-shoulder"),
-    e: document.getElementById("bar-elbow")
-  };
-  uiVals = {
-    b: document.getElementById("val-base"),
-    s: document.getElementById("val-shoulder"),
-    e: document.getElementById("val-elbow"),
-    g: document.getElementById("val-gripper")
-  };
-  configUI = {
-    b: { min: document.getElementById("min-base"), max: document.getElementById("max-base"), rev: document.getElementById("rev-base") },
-    s: { min: document.getElementById("min-shoulder"), max: document.getElementById("max-shoulder"), rev: document.getElementById("rev-shoulder") },
-    e: { min: document.getElementById("min-elbow"), max: document.getElementById("max-elbow"), rev: document.getElementById("rev-elbow") }
-  };
+// script.js가 <body> 끝에 위치하므로 DOM이 이미 준비된 상태 — 직접 참조 가능
+modelStatus   = document.getElementById("model-status");
+statusBt      = document.getElementById("bt-status");
+packetLog     = document.getElementById("packet-log");
+connectBtn    = document.getElementById("connect-btn");
+disconnectBtn = document.getElementById("disconnect-btn");
 
-  // 블루투스 이벤트 등록
-  connectBtn.addEventListener("click", async () => {
-    try {
-      bluetoothDevice = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: "BBC micro:bit" }],
-        optionalServices: [UUID_SERVICE]
-      });
-      bluetoothDevice.addEventListener("gattserverdisconnected", onDisc);
-      const server  = await bluetoothDevice.gatt.connect();
-      const service = await server.getPrimaryService(UUID_SERVICE);
-      rxCharacteristic = await service.getCharacteristic(UUID_RX);
-      isConnected = true;
-      statusBt.innerText = "연결됨: " + bluetoothDevice.name;
-      statusBt.classList.add("status-connected");
-      connectBtn.classList.add("hidden");
-      disconnectBtn.classList.remove("hidden");
-    } catch (error) { alert("연결 실패: " + error); }
-  });
+uiBars = {
+  b: document.getElementById("bar-base"),
+  s: document.getElementById("bar-shoulder"),
+  e: document.getElementById("bar-elbow")
+};
+uiVals = {
+  b: document.getElementById("val-base"),
+  s: document.getElementById("val-shoulder"),
+  e: document.getElementById("val-elbow"),
+  g: document.getElementById("val-gripper")
+};
+configUI = {
+  b: { min: document.getElementById("min-base"), max: document.getElementById("max-base"), rev: document.getElementById("rev-base") },
+  s: { min: document.getElementById("min-shoulder"), max: document.getElementById("max-shoulder"), rev: document.getElementById("rev-shoulder") },
+  e: { min: document.getElementById("min-elbow"), max: document.getElementById("max-elbow"), rev: document.getElementById("rev-elbow") }
+};
 
-  disconnectBtn.addEventListener("click", () => {
-    if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-      bluetoothDevice.gatt.disconnect();
-    }
-  });
-
-  // AI 초기화 시작
-  createHandLandmarker();
+// 블루투스 이벤트 직접 바인딩 — 래퍼 없는 addEventListener가 사용자 제스처로 정확히 인정됨
+connectBtn.addEventListener("click", async () => {
+  try {
+    bluetoothDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ namePrefix: "BBC micro:bit" }],
+      optionalServices: [UUID_SERVICE]
+    });
+    bluetoothDevice.addEventListener("gattserverdisconnected", onDisc);
+    const server  = await bluetoothDevice.gatt.connect();
+    const service = await server.getPrimaryService(UUID_SERVICE);
+    rxCharacteristic = await service.getCharacteristic(UUID_RX);
+    isConnected = true;
+    statusBt.innerText = "연결됨: " + bluetoothDevice.name;
+    statusBt.classList.add("status-connected");
+    connectBtn.classList.add("hidden");
+    disconnectBtn.classList.remove("hidden");
+  } catch (error) { alert("연결 실패: " + error); }
 });
+
+disconnectBtn.addEventListener("click", () => {
+  if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+    bluetoothDevice.gatt.disconnect();
+  }
+});
+
+// AI 초기화 시작
+createHandLandmarker();
