@@ -1,7 +1,5 @@
-import {
-  HandLandmarker,
-  FilesetResolver
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+// HandLandmarker, FilesetResolver: 동적 import로 로드
+let HandLandmarker, FilesetResolver;
 
 // --- [설정] 하드웨어 및 통신 설정 ---
 const UUID_SERVICE = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
@@ -47,6 +45,10 @@ const configUI = {
 
 // --- [1] AI 초기화 ---
 async function createHandLandmarker() {
+  const m = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0");
+  HandLandmarker = m.HandLandmarker;
+  FilesetResolver = m.FilesetResolver;
+
   const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
   handLandmarker = await HandLandmarker.createFromOptions(vision, {
     baseOptions: { modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`, delegate: "GPU" },
@@ -213,5 +215,3 @@ function onDisc() { isConnected = false; statusBt.innerText = "연결 해제됨"
 disconnectBtn.addEventListener('click', () => { if(bluetoothDevice && bluetoothDevice.gatt.connected) { bluetoothDevice.gatt.disconnect(); } });
 
 createHandLandmarker();
-
-
