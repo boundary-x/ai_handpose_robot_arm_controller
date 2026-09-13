@@ -19,7 +19,7 @@ Powered by **Google MediaPipe Hand Landmarker**, it tracks the user's hand coord
     - **Gripper (Grab):** Triggered by pinching the Thumb and Index finger.
 
 ### 2. 🎛 Custom Calibration & Safety
-- **Range Limit:** Users can set **Min/Max angles** for each servo (e.g., 0°~180°) to prevent hardware damage.
+- **Input Mapping:** Min/Max values map hand input to servo angles. Distance input can exceed this mapping range; final output is clamped to 0°–180°. These settings are not mechanical travel limits.
 - **Reverse Mode:** Includes a **"Reverse" checkbox** for each joint to invert the direction of movement if the physical motor is mounted in the opposite orientation.
 - **Smoothing:** Applies a moving average filter (`FILTER_SIZE = 3`) to reduce jitter and ensure smooth robot movement.
 
@@ -62,3 +62,9 @@ B{Base}S{Shoulder}E{Elbow}G{Gripper}\r\n
 - All rights to the source code and design of this project belong to BoundaryX.
 - Web: boundaryx.io
 - Contact: https://boundaryx.io/contact
+
+## Help and Support
+
+Open Help in the header or expand the sidebar support card for a seven-step walkthrough, the MakeCode example, gesture and packet documentation, troubleshooting, and update notes. Recognition and Bluetooth transmission continue while the guide is open. Shoulder reversal is off by default; Base and Elbow reversal are on.
+
+UI checks: install Playwright and run `node tests/support.cjs` with Microsoft Edge available (or set BROWSER_CHANNEL). The test uses a mocked hand model and a fake camera; physical Bluetooth hardware is not tested.
