@@ -216,13 +216,16 @@ function updateUI() {
 
 // --- [6] 통신 ---
 async function sendPacket() {
-    if (!isConnected || !rxCharacteristic || isSendingData) return;
+    if (isSendingData) return;
 
     let b = Math.round(currentAngles.b);
     let s = Math.round(currentAngles.s);
     let e = Math.round(currentAngles.e);
     let g = targetAngles.g;
 
+    let packet = `B${String(b).padStart(3,'0')}S${String(s).padStart(3,'0')}E${String(e).padStart(3,'0')}G${String(g).padStart(3,'0')}`;
+    if (!isConnected || !rxCharacteristic) { packetLog.innerText = '전송할 데이터: ' + packet; return; }
+    const target = rxCharacteristic;
     let diffB = Math.abs(b - lastSentAngles.b);
     let diffS = Math.abs(s - lastSentAngles.s);
     let diffE = Math.abs(e - lastSentAngles.e);
@@ -230,15 +233,15 @@ async function sendPacket() {
 
     if (diffB < MIN_CHANGE && diffS < MIN_CHANGE && diffE < MIN_CHANGE && diffG === 0) return;
 
-    let packet = `B${String(b).padStart(3,'0')}S${String(s).padStart(3,'0')}E${String(e).padStart(3,'0')}G${String(g).padStart(3,'0')}`;
-    packetLog.innerText = packet;
+
 
     try {
         isSendingData = true;
         const encoder = new TextEncoder();
-        await rxCharacteristic.writeValue(encoder.encode(packet + "\r\n"));
+        await target.writeValue(encoder.encode(packet + "\r\n"));
+        if (isConnected && target === rxCharacteristic) packetLog.innerText = '전송됨: ' + packet;
         lastSentAngles = { b, s, e, g };
-    } catch (err) { } finally { isSendingData = false; }
+    } catch (err) { if (isConnected && target === rxCharacteristic) packetLog.innerText = '전송 실패: ' + packet; } finally { isSendingData = false; }
 }
 
 function onDisc() {
@@ -274,3 +277,5 @@ connectBtn.disabled = true;
 connectBtn.innerText = "AI 로딩 중...";
 
 createHandLandmarker();
+
+
