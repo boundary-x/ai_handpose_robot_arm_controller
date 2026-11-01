@@ -103,3 +103,5 @@ const dialog = document.createElement('dialog');
   window.addEventListener('scroll', reposition, {passive:true, capture:true});
   if (location.hash === '#support-card') requestAnimationFrame(() => openHelp());
 })();
+
+
