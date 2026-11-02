@@ -1,4 +1,4 @@
-(()=>{'use strict';const $=id=>document.getElementById(id);const support=$('support-card');support.innerHTML="<summary><span><strong>사용 가이드 및 지원</strong><small>사용법 · 예제 코드 · 문제 해결</small></span><span class=\"support-chevron\" aria-hidden=\"true\">⌄</span></summary><div class=\"support-content\"><p>한 손의 움직임으로 로봇팔을 조종해보세요.</p><div class=\"support-actions\"><button type=\"button\" data-tour=\"all\" class=\"support-primary\">사용법 둘러보기 →</button></div><details class=\"support-section\" id=\"help-examples\"><summary>마이크로비트 예제 코드</summary><div class=\"support-answer\"><div class=\"device-prepare\"><span class=\"device-tag\">공통 준비</span><p><a href=\"https://makecode.microbit.org/#pub:69459-03613-85562-69852\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>블루투스 이름 확인 코드 ↗</strong></a></p><p>LED에 표시되는 장치 이름(알파벳 소문자 5자리)을 확인한 뒤 아래 예제를 다운로드하세요.</p></div><article class=\"device-example-card\"><div class=\"device-example-heading\"><h4>AI 포니봇 로봇팔</h4><span class=\"device-tag\">로봇팔 사용</span></div><p>한 손의 움직임으로 로봇팔의 관절과 집게를 조종해보세요.</p><div class=\"device-example-links\"><a id=\"project-example-link\" href=\"https://makecode.microbit.org/#pub:83132-30926-34454-22521\" target=\"_blank\" rel=\"noopener noreferrer\">핸즈 텔레오퍼레이션 로봇팔 예제 ↗</a></div><ul><li><strong>Servo1</strong> → Base (밑부분)</li><li><strong>Servo2</strong> → Shoulder (어깨)</li><li><strong>Servo3</strong> → Elbow (팔꿈치)</li><li><strong>Servo4</strong> → Gripper (집게)</li></ul><p>aiPonybot 확장과 호환되는 보드를 사용하세요. 다른 보드는 해당 보드용 서보 제어 블록으로 변경하세요.</p><p>전원을 켜면 세 관절은 90°, 집게는 닫힘으로 움직입니다. OLED의 장치 이름을 확인해 연결하세요.</p></article></div></details><div class=\"arm-help-links\"><button type=\"button\" data-arm-help=\"motion\" aria-haspopup=\"dialog\"><span><strong>손동작 · 관절 설정</strong><small>손의 움직임과 관절의 관계</small></span><span aria-hidden=\"true\">↗</span></button><button type=\"button\" data-arm-help=\"packet\" aria-haspopup=\"dialog\"><span><strong>전송 데이터 · 손 인식 해제</strong><small>데이터 읽는 법과 손을 치웠을 때의 동작</small></span><span aria-hidden=\"true\">↗</span></button></div><details class=\"support-section\" id=\"help-troubleshooting\"><summary>문제 해결</summary><div class=\"support-answer support-faq\"><details id=\"help-connection\"><summary>블루투스 연결이 안 돼요</summary><p>전원·UART 예제·OLED의 장치 이름을 확인하고 다른 앱의 연결을 해제하세요. PC는 Chrome·Edge, 안드로이드는 Chrome, 아이폰·아이패드는 Bluefy를 사용하세요.</p></details><details><summary>카메라나 모델이 준비되지 않아요</summary><p>인터넷 연결과 카메라 권한을 확인하세요. 카메라를 사용하는 다른 앱을 종료하고 새로고침하세요. 모델 로딩이 끝나야 기기 찾기가 활성화됩니다.</p></details><details><summary>손동작과 로봇팔 방향이 반대예요</summary><p>해당 관절의 반전 체크 상태와 서보 연결을 확인하세요. 집게 방향은 예제 코드의 Servo4 닫힘·열림 각도로 조정합니다.</p></details><details><summary>거리 제어가 일정하지 않아요</summary><p>손바닥 방향을 일정하게 유지하고 손 전체가 보이도록 앞뒤로 움직이세요. 손의 기울기와 모양에 따라 계산값이 달라집니다.</p></details><details><summary>가이드를 열면 조종이 멈추나요?</summary><p>안내 중에도 인식과 연결된 기기로의 전송은 계속됩니다. 기기를 연결하기 전에 사용법을 둘러보세요.</p></details></div></details><details class=\"support-section\" id=\"help-updates\"><summary>업데이트 노트</summary><div class=\"support-answer\"><p class=\"support-release\">2026.11.02 · 예제 카드와 설명 팝업 개선</p><ul><li>공통 준비·로봇팔 예제 카드 디자인 통일 및 코드 링크 갱신</li><li>서보 연결 안내를 관절별 목록으로 정리</li><li>손동작·관절 설정과 전송 데이터 안내를 넓은 팝업으로 구성</li><li>관절별 연결 도식과 데이터 항목 선택 기능 추가</li><li>손동작과 로봇팔 반응을 함께 보여주는 모션 그래픽 및 재생·일시정지 추가</li></ul><ul><li>로봇팔 사용법을 화면에서 단계별로 안내</li><li>로봇팔 예제 코드·관절 설정·전송 데이터 안내 추가</li><li>손 인식 해제 동작과 연결 문제 해결 안내 추가</li></ul></div></details><p><a href=\"https://boundaryx.io/ai/?bmode=view&idx=174049510&t=board\"  target=\"_blank\" rel=\"noopener noreferrer\">소개 · 프로젝트 아이디어 ↗</a></p><p><a href=\"mailto:hi@boundaryx.io\"  target=\"_blank\" rel=\"noopener noreferrer\">문의 · 개선 의견 ↗</a></p></div>";const allSteps=[["#project-example-link","로봇팔 예제를 준비하세요","예제를 다운로드하고 서보 연결을 확인하세요. 전원을 켜면 세 관절은 90°, 집게는 닫힘으로 움직입니다. OLED의 장치 이름을 확인하세요."],["#model-status","모델과 카메라를 준비하세요","AI 모델 준비 완료를 기다리고 카메라 권한을 허용하세요. 손 전체가 보이도록 한 손을 카메라 앞에 둡니다."],["#connection-panel","마이크로비트를 연결하세요","기기 찾기를 눌러 OLED에서 확인한 이름을 선택하세요. 연결되면 별도의 시작 버튼 없이 제어값이 전송됩니다."],[".canvas-wrapper","한 손으로 네 관절을 조종합니다","손목의 좌우는 Base, 앞뒤 거리는 Shoulder, 높이는 Elbow입니다. 엄지·검지를 모으면 집게가 닫히고 벌리면 열립니다."],["#angles-panel","계산된 관절 각도를 확인하세요","손을 천천히 움직이며 각도와 OPEN·CLOSE 상태를 확인하세요. 이 값은 로봇팔의 실제 각도를 측정한 값이 아닙니다."],[".mapping-panel","동작 방향과 범위를 맞추세요","반전 체크 상태로 방향을 바꿉니다. 기본적으로 거리만 체크 해제되어 있습니다. 손을 가까이 가져가면 Shoulder 각도가 커집니다."],["#packet-log","전송 패킷과 실제 동작을 확인하세요","B·S·E는 관절 각도, G000은 집게 닫기, G001은 열기입니다. 손을 치우면 세 관절은 90°를 향해 움직이고 집게는 닫힙니다. 연결 해제는 복귀 명령을 보내지 않습니다."]];const chapters=[{label:'기기 준비',start:0},{label:'손동작 · 설정',start:3},{label:'출력 확인',start:6}];
+(()=>{'use strict';const $=id=>document.getElementById(id);const support=$('support-card');support.innerHTML="<summary><span><strong>사용 가이드 및 지원</strong><small>사용법 · 예제 코드 · 문제 해결</small></span><span class=\"support-chevron\" aria-hidden=\"true\">⌄</span></summary><div class=\"support-content\"><p>한 손의 움직임으로 로봇팔을 조종해보세요.</p><div class=\"support-actions\"><button type=\"button\" data-tour=\"all\" class=\"support-primary\">사용법 둘러보기 →</button></div><details class=\"support-section\" id=\"help-examples\"><summary>마이크로비트 예제 코드</summary><div class=\"support-answer\"><div class=\"device-prepare\"><span class=\"device-tag\">공통 준비</span><p><a href=\"https://makecode.microbit.org/#pub:69459-03613-85562-69852\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>블루투스 이름 확인 코드 ↗</strong></a></p><p>LED에 표시되는 장치 이름(알파벳 소문자 5자리)을 확인한 뒤 아래 예제를 다운로드하세요.</p></div><article class=\"device-example-card\"><div class=\"device-example-heading\"><h4>AI 포니봇 로봇팔</h4><span class=\"device-tag\">로봇팔 사용</span></div><p>한 손의 움직임으로 로봇팔의 관절과 집게를 조종해보세요.</p><div class=\"device-example-links\"><a id=\"project-example-link\" href=\"https://makecode.microbit.org/#pub:83132-30926-34454-22521\" target=\"_blank\" rel=\"noopener noreferrer\">핸즈 텔레오퍼레이션 로봇팔 예제 ↗</a></div><ul><li><strong>Servo1</strong> → Base (밑부분)</li><li><strong>Servo2</strong> → Shoulder (어깨)</li><li><strong>Servo3</strong> → Elbow (팔꿈치)</li><li><strong>Servo4</strong> → Gripper (집게)</li></ul><p>aiPonybot 확장과 호환되는 보드를 사용하세요. 다른 보드는 해당 보드용 서보 제어 블록으로 변경하세요.</p><p>전원을 켜면 세 관절은 90°, 집게는 닫힘으로 움직입니다. OLED의 장치 이름을 확인해 연결하세요.</p></article></div></details><div class=\"arm-help-links\"><button type=\"button\" data-arm-help=\"motion\" aria-haspopup=\"dialog\"><span><strong>손동작 · 관절 설정</strong><small>손의 움직임과 관절의 관계</small></span><span aria-hidden=\"true\">↗</span></button><button type=\"button\" data-arm-help=\"packet\" aria-haspopup=\"dialog\"><span><strong>전송 데이터 · 손 인식 해제</strong><small>데이터 읽는 법과 손을 치웠을 때의 동작</small></span><span aria-hidden=\"true\">↗</span></button></div><details class=\"support-section\" id=\"help-troubleshooting\"><summary>문제 해결</summary><div class=\"support-answer support-faq\"><details id=\"help-connection\"><summary>블루투스 연결이 안 돼요</summary><p>전원·UART 예제·OLED의 장치 이름을 확인하고 다른 앱의 연결을 해제하세요. PC는 Chrome·Edge, 안드로이드는 Chrome, 아이폰·아이패드는 Bluefy를 사용하세요.</p></details><details><summary>카메라나 모델이 준비되지 않아요</summary><p>인터넷 연결과 카메라 권한을 확인하세요. 카메라를 사용하는 다른 앱을 종료하고 새로고침하세요. 모델 로딩이 끝나야 기기 찾기가 활성화됩니다.</p></details><details><summary>손동작과 로봇팔 방향이 반대예요</summary><p>해당 관절의 반전 체크 상태와 서보 연결을 확인하세요. 집게 방향은 예제 코드의 Servo4 닫힘·열림 각도로 조정합니다.</p></details><details><summary>거리 제어가 일정하지 않아요</summary><p>손바닥 방향을 일정하게 유지하고 손 전체가 보이도록 앞뒤로 움직이세요. 손의 기울기와 모양에 따라 계산값이 달라집니다.</p></details><details><summary>가이드를 열면 조종이 멈추나요?</summary><p>안내 중에도 인식과 연결된 기기로의 전송은 계속됩니다. 기기를 연결하기 전에 사용법을 둘러보세요.</p></details></div></details><details class=\"support-section\" id=\"help-updates\"><summary>업데이트 노트</summary><div class=\"support-answer\"><p class=\"support-release\">2026.11.02 · 예제 카드와 설명 팝업 개선</p><ul><li>공통 준비·로봇팔 예제 카드 디자인 통일 및 코드 링크 갱신</li><li>서보 연결 안내를 관절별 목록으로 정리</li><li>손동작·관절 설정과 전송 데이터 안내를 넓은 팝업으로 구성</li><li>관절별 연결 도식과 데이터 항목 선택 기능 추가</li><li>Three.js 기반 3D 손·로봇팔 동작 안내 및 재생·일시정지·직접 조절 추가</li></ul><ul><li>로봇팔 사용법을 화면에서 단계별로 안내</li><li>로봇팔 예제 코드·관절 설정·전송 데이터 안내 추가</li><li>손 인식 해제 동작과 연결 문제 해결 안내 추가</li></ul></div></details><p><a href=\"https://boundaryx.io/ai/?bmode=view&idx=174049510&t=board\"  target=\"_blank\" rel=\"noopener noreferrer\">소개 · 프로젝트 아이디어 ↗</a></p><p><a href=\"mailto:hi@boundaryx.io\"  target=\"_blank\" rel=\"noopener noreferrer\">문의 · 개선 의견 ↗</a></p></div>";const allSteps=[["#project-example-link","로봇팔 예제를 준비하세요","예제를 다운로드하고 서보 연결을 확인하세요. 전원을 켜면 세 관절은 90°, 집게는 닫힘으로 움직입니다. OLED의 장치 이름을 확인하세요."],["#model-status","모델과 카메라를 준비하세요","AI 모델 준비 완료를 기다리고 카메라 권한을 허용하세요. 손 전체가 보이도록 한 손을 카메라 앞에 둡니다."],["#connection-panel","마이크로비트를 연결하세요","기기 찾기를 눌러 OLED에서 확인한 이름을 선택하세요. 연결되면 별도의 시작 버튼 없이 제어값이 전송됩니다."],[".canvas-wrapper","한 손으로 네 관절을 조종합니다","손목의 좌우는 Base, 앞뒤 거리는 Shoulder, 높이는 Elbow입니다. 엄지·검지를 모으면 집게가 닫히고 벌리면 열립니다."],["#angles-panel","계산된 관절 각도를 확인하세요","손을 천천히 움직이며 각도와 OPEN·CLOSE 상태를 확인하세요. 이 값은 로봇팔의 실제 각도를 측정한 값이 아닙니다."],[".mapping-panel","동작 방향과 범위를 맞추세요","반전 체크 상태로 방향을 바꿉니다. 기본적으로 거리만 체크 해제되어 있습니다. 손을 가까이 가져가면 Shoulder 각도가 커집니다."],["#packet-log","전송 패킷과 실제 동작을 확인하세요","B·S·E는 관절 각도, G000은 집게 닫기, G001은 열기입니다. 손을 치우면 세 관절은 90°를 향해 움직이고 집게는 닫힙니다. 연결 해제는 복귀 명령을 보내지 않습니다."]];const chapters=[{label:'기기 준비',start:0},{label:'손동작 · 설정',start:3},{label:'출력 확인',start:6}];
 
 const armHelp=document.createElement('dialog');
 armHelp.id='arm-help-dialog';
@@ -19,76 +19,16 @@ const packetInfo=[
  ['G001','Gripper · 집게','G000은 닫힘, G001은 열림입니다. 예제 코드에서 닫힘은 0°, 열림은 90°입니다.']
 ];
 
-let motionFrame=0, motionPlaying=false, motionPhase=0, motionLast=0, motionJoint=0;
-const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-function stopMotion(){cancelAnimationFrame(motionFrame);motionFrame=0;motionPlaying=false;motionLast=0;}
-function drawMotion(){
- const svg=$('arm-motion-svg');if(!svg)return;
- const i=motionJoint,t=(1-Math.cos(motionPhase))/2;
- const ids=['base','shoulder','elbow'],key=ids[i];
- const reverse=key?$('rev-'+key).checked:false;
- const min=key?Number($('min-'+key).value):0,max=key?Number($('max-'+key).value):90;
- const angle=Math.round(Math.max(0,Math.min(180,(reverse?max:min)+t*((reverse?min:max)-(reverse?max:min)))));
- const hand=svg.querySelector('[data-hand]');
- let tx=0,ty=0,scale=1;
- if(i===0)tx=(t-.5)*80;
- if(i===1)scale=.65+t*.65;
- if(i===2)ty=(t-.5)*70;
- hand.setAttribute('transform','translate('+(110+tx)+' '+(108+ty)+') scale('+scale+')');
- const pinch=i===3?8+t*34:24;
- svg.querySelector('[data-thumb]').setAttribute('d','M -15 30 Q -40 8 -'+pinch+' -18');
- svg.querySelector('[data-index]').setAttribute('d','M 15 30 Q 35 3 '+pinch+' -18');
- const base=svg.querySelector('[data-base]');
- base.setAttribute('transform','rotate('+(i===0?(angle-90)*.45:0)+' 345 155)');
- svg.querySelector('[data-shoulder]').setAttribute('transform','rotate('+(i===1?(angle-90)*.65:0)+' 345 155)');
- svg.querySelector('[data-elbow]').setAttribute('transform','rotate('+(i===2?(angle-90)*.65:0)+' 345 100)');
- const spread=i===3?4+t*17:12;
- svg.querySelector('[data-jaw-a]').setAttribute('d','M 390 88 L '+(400+spread)+' 77 L '+(412+spread)+' 83');
- svg.querySelector('[data-jaw-b]').setAttribute('d','M 390 100 L '+(400+spread)+' 111 L '+(412+spread)+' 105');
- $('motion-value').textContent=i===3?(t<.5?'엄지·검지 모으기 → 집게 닫힘':'엄지·검지 벌리기 → 집게 열림'):(joints[i][0]+' 예시 각도: '+angle+'° · 반전 '+(reverse?'켜짐':'꺼짐'));
-}
-function motionTick(now){
- if(!motionPlaying||!armHelp.open)return;
- if(motionLast)motionPhase+=(now-motionLast)/1000*Math.PI/2;
- motionLast=now;drawMotion();motionFrame=requestAnimationFrame(motionTick);
-}
-function setMotionPlaying(play){
- stopMotion();motionPlaying=play;
- const button=$('motion-toggle');if(button){button.textContent=play?'일시정지':'재생';button.setAttribute('aria-pressed',String(play));}
- if(play)motionFrame=requestAnimationFrame(motionTick);
-}
+function stopMotion(){}
+function setMotionPlaying(){}
 function renderJoint(i){
- stopMotion();motionJoint=i;motionPhase=0;
  const j=joints[i];
  armHelp.querySelectorAll('[data-joint]').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.joint)===i)));
- $('joint-detail').innerHTML=`<div class="arm-motion">
- <div class="motion-labels"><strong>손동작</strong><span aria-hidden="true">→</span><strong>로봇팔 반응</strong></div>
- <svg id="arm-motion-svg" viewBox="0 0 480 220" role="img" aria-labelledby="motion-svg-title">
- <title id="motion-svg-title">${j[2]} 동작과 ${j[0]} 관절 반응 예시</title>
- <path d="M 235 30 V 195" stroke="#d8dee5" stroke-dasharray="4 5"/>
- <g data-hand fill="#e8f4ff" stroke="#195da8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
- <path d="M -20 55 L -24 23 Q -38 10 -30 -2 L -22 -8 L -22 -39 Q -22 -52 -12 -49 L -8 -17 L -8 -51 Q -8 -62 2 -57 L 5 -17 L 5 -46 Q 8 -57 16 -48 L 19 -12 Q 35 -24 38 -12 L 27 24 L 20 55 Z" ${i===3?'visibility="hidden"':''}/>
- <g ${i!==3?'visibility="hidden"':''}><path d="M -15 30 L -18 55 L 20 55 L 15 30"/><path data-thumb fill="none"/><path data-index fill="none"/><circle cx="0" cy="40" r="4" fill="#195da8"/></g>
- </g>
- <path d="M 310 194 H 378 L 370 174 H 318 Z" fill="#d6dde5" stroke="#667382" stroke-width="5"/>
- <g data-base><ellipse cx="345" cy="163" rx="27" ry="12" fill="${i===0?'#ffe37b':'#e4e9ee'}" stroke="#334455" stroke-width="5"/>
- <g data-shoulder><path d="M 345 155 L 345 100" stroke="${i===1?'#dc9d00':'#667382'}" stroke-width="17" stroke-linecap="round"/>
- <circle cx="345" cy="155" r="10" fill="${i===1?'#ffe37b':'white'}" stroke="#334455" stroke-width="4"/>
- <g data-elbow><path d="M 345 100 L 390 94" stroke="${i===2?'#dc9d00':'#667382'}" stroke-width="14" stroke-linecap="round"/>
- <circle cx="345" cy="100" r="9" fill="${i===2?'#ffe37b':'white'}" stroke="#334455" stroke-width="4"/>
- <g fill="none" stroke="${i===3?'#b88100':'#334455'}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path data-jaw-a/><path data-jaw-b/></g>
- </g></g></g></svg>
- <p class="motion-action">${j[2]} → ${j[0]} (${j[4]})</p>
- <div class="motion-toolbar"><button type="button" id="motion-toggle" aria-pressed="false">재생</button><span id="motion-value"></span></div>
- <p class="motion-note">동작 원리 예시입니다. 실제 조립 방향에 따라 움직임이 다를 수 있습니다. 이 애니메이션은 기기로 명령을 보내지 않습니다.</p>
- </div><div class="arm-setting"><strong>기본 설정</strong><p>${j[5]}</p></div>`;
- drawMotion();
- $('motion-toggle').addEventListener('click',()=>setMotionPlaying(!motionPlaying));
- if(armHelp.open&&!reducedMotion.matches)setMotionPlaying(true);
+ const key=['base','shoulder','elbow'][i];
+ const reverse=key?$('rev-'+key).checked:false;
+ $('joint-detail').innerHTML='<iframe class="arm-3d-frame" title="'+j[0]+' 손동작과 로봇팔 3D 설명" src="./motion-3d.html?joint='+i+'&reverse='+Number(reverse)+'"></iframe><p class="motion-note">동작 원리 예시입니다. 실제 조립 방향에 따라 다를 수 있습니다. 설명용 3D는 기기로 명령을 보내지 않습니다.</p>';
 }
-armHelp.addEventListener('close',stopMotion);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)setMotionPlaying(false);});
-reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)setMotionPlaying(false);});
+armHelp.addEventListener('close',()=>{$('joint-detail')?.replaceChildren();});
 function renderPacket(i){
  armHelp.querySelectorAll('[data-field]').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.field)===i)));
  $('packet-detail').textContent=packetInfo[i][1]+' — '+packetInfo[i][2];
@@ -102,7 +42,7 @@ support.querySelectorAll('[data-arm-help]').forEach(button=>button.addEventListe
  '<p>문자열의 각 항목을 눌러 의미를 확인하세요.</p><div class="arm-packet" aria-label="전송 데이터 예시">'+packetInfo.map((p,i)=>'<button type="button" data-field="'+i+'" aria-pressed="'+(i===0)+'" aria-controls="packet-detail">'+p[0]+'</button>').join('')+'<span>\\r\\n</span></div><p id="packet-detail" class="arm-setting" aria-live="polite"></p><p>각 항목은 문자 1개 + 숫자 3자리입니다. 마지막에 줄바꿈(CRLF)을 붙입니다.</p><div class="arm-setting"><h3>손이 인식되지 않으면</h3><div class="arm-reset-values"><span>Base <b>90°</b></span><span>Shoulder <b>90°</b></span><span>Elbow <b>90°</b></span><span>집게 <b>닫힘</b></span></div><p>세 관절은 90°를 향해 서서히 움직이고 집게는 닫힙니다. 블루투스 연결 해제 자체는 복귀 명령을 보내지 않습니다.</p></div><details class="arm-detail"><summary>언제 데이터가 전송되나요?</summary><p>연결 후 계산된 관절 각도가 직전 전송값보다 1.5° 이상 달라지거나 집게 상태가 바뀌면 전송합니다. 각도는 정수로 반올림해 보내므로 실제 전송값 차이는 2° 이상입니다.</p><p>연결 전에는 전송할 데이터를 표시합니다. 전송됨은 블루투스 쓰기 성공을 뜻하며 기기의 실제 동작이나 수신 처리를 확인한 것은 아닙니다.</p></details>';
  if(motion){renderJoint(0);armHelp.querySelectorAll('[data-joint]').forEach(el=>el.addEventListener('click',()=>renderJoint(Number(el.dataset.joint))));}
  else {renderPacket(0);armHelp.querySelectorAll('[data-field]').forEach(el=>el.addEventListener('click',()=>renderPacket(Number(el.dataset.field))));}
- armHelp.showModal();if(motion&&!reducedMotion.matches)setMotionPlaying(true);$('arm-help-close').focus();
+ armHelp.showModal();$('arm-help-close').focus();
 }));
 $('arm-help-close').addEventListener('click',()=>armHelp.close());
 armHelp.addEventListener('click',e=>{if(e.target===armHelp){const r=armHelp.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)armHelp.close();}});
@@ -212,5 +152,7 @@ const dialog = document.createElement('dialog');
   window.addEventListener('scroll', reposition, {passive:true, capture:true});
   if (location.hash === '#support-card') requestAnimationFrame(() => openHelp());
 })();
+
+
 
 
