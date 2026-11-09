@@ -255,11 +255,11 @@ function onDisc() {
 // 블루투스 이벤트 직접 바인딩
 connectBtn.addEventListener("click", async () => {
     try {
-        bluetoothDevice = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: "BBC micro:bit" }], optionalServices: [UUID_SERVICE] });
+        bluetoothDevice = await BoardLink.requestDevice({ filters: [{ namePrefix: "BBC micro:bit" }], optionalServices: [UUID_SERVICE] });
         bluetoothDevice.addEventListener("gattserverdisconnected", onDisc);
         const server = await bluetoothDevice.gatt.connect();
         const service = await server.getPrimaryService(UUID_SERVICE);
-        rxCharacteristic = await service.getCharacteristic(UUID_RX);
+        rxCharacteristic = await BoardLink.getCharacteristic(service,UUID_RX);
         isConnected = true;
         statusBt.innerText = "연결됨: " + bluetoothDevice.name;
         statusBt.classList.add("status-connected");
